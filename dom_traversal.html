@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Traversal Interactive</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .header {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .header p {
+            margin: 6px 0;
+        }
+        h2 {
+            text-align: center;
+        }
+        .grandparent {
+            background-color: #f5e79e;
+            padding: 20px;
+            display: block;
+            width: 500px;
+            margin: 0 auto;
+            border-radius: 10px;
+        }
+        .parent {
+            background-color: #b7dff5;
+            margin: 10px auto;
+            padding: 10px;
+            width: 90%;
+            border-radius: 8px;
+        }
+        .child {
+            background-color: #f5b7b1;
+            margin: 5px auto;
+            padding: 5px;
+            width: 85%;
+            border-radius: 6px;
+        }
+        .highlight {
+            border: 3px solid red;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <p><strong>Complete Name:</strong> Kim A. Artista</p>
+        <p><strong>Sex:</strong> Male</p>
+        <p><strong>Address:</strong> Hiwacloy Goa, Camarines Sur</p>
+        <p><strong>Course, Year, and Section:</strong> BSIT 2A</p>
+        <p><strong>Name of School:</strong> Partido State University</p>
+        <p><strong>Semester and Academic Year:</strong> 2nd Semester, AY 2024-2025</p>
+        <p><strong>Subject Code and Title:</strong> PF2 - Event Driven Programming</p>
+        <p><strong>Subject Instructor:</strong> Arjay F. Abio</p>
+    </div>
+
+    <h2>DOM Traversal Interactive</h2>
+    <div id="grandparent" class="grandparent">
+        Grandparent
+        <div class="parent">
+            Parent 1
+            <div class="child">Child 1</div>
+            <div class="child">Child 2</div>
+        </div>
+        <div class="parent">
+            Parent 2
+            <div class="child">Child 3</div>
+            <div class="child">Child 4</div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button id="btnTraverseDown">Traverse Down</button>
+        <button id="btnTraverseUp">Traverse Up</button>
+        <button id="btnTraverseNext">Traverse Next Sibling</button>
+        <button id="btnTraversePrev">Traverse Previous Sibling</button>
+        <button id="btnAddChild">Add Child</button>
+        <button id="btnDelete">Delete Current</button>
+    </div>
+
+    <script>
+        let selected = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.grandparent, .parent, .child').forEach(node => {
+                node.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    if (selected) selected.classList.remove('highlight');
+                    selected = this;
+                    selected.classList.add('highlight');
+                });
+            });
+
+            document.getElementById("btnTraverseDown").addEventListener("click", traverseDown);
+            document.getElementById("btnTraverseUp").addEventListener("click", traverseUp);
+            document.getElementById("btnTraverseNext").addEventListener("click", traverseNextSibling);
+            document.getElementById("btnTraversePrev").addEventListener("click", traversePreviousSibling);
+            document.getElementById("btnAddChild").addEventListener("click", addChild);
+            document.getElementById("btnDelete").addEventListener("click", deleteCurrent);
+        });
+
+        function traverseDown() {
+            if (selected && selected.children.length > 0) {
+                changeSelection(selected.children[0]);
+            }
+        }
+
+        function traverseUp() {
+            if (selected && selected.parentElement && 
+                (selected.parentElement.classList.contains('grandparent') ||
+                selected.parentElement.classList.contains('parent'))) {
+                changeSelection(selected.parentElement);
+            }
+        }
+
+        function traverseNextSibling() {
+            if (selected && selected.nextElementSibling) {
+                changeSelection(selected.nextElementSibling);
+            }
+        }
+
+        function traversePreviousSibling() {
+            if (selected && selected.previousElementSibling) {
+                changeSelection(selected.previousElementSibling);
+            }
+        }
+
+        function addChild() {
+            if (!selected) return;
+
+            if (selected.classList.contains('grandparent')) {
+                const newParent = document.createElement('div');
+                newParent.className = 'parent';
+                newParent.textContent = `Parent ${document.querySelectorAll('.parent').length + 1}`;
+
+                const child1 = document.createElement('div');
+                child1.className = 'child';
+                child1.textContent = `Child A`;
+
+                const child2 = document.createElement('div');
+                child2.className = 'child';
+                child2.textContent = `Child B`;
+
+                newParent.appendChild(child1);
+                newParent.appendChild(child2);
+                selected.appendChild(newParent);
+            } else if (selected.classList.contains('parent')) {
+                const newChild = document.createElement('div');
+                newChild.className = 'child';
+                newChild.textContent = `Child ${selected.children.length + 1}`;
+                selected.appendChild(newChild);
+            } else {
+                alert("Cannot add child to a child node.");
+            }
+        }
+
+        function deleteCurrent() {
+            if (!selected) return;
+            if (selected.id === 'grandparent') {
+                alert("Cannot delete grandparent node.");
+                return;
+            }
+            const toDelete = selected;
+            selected = null;
+            toDelete.remove();
+        }
+
+        function changeSelection(newNode) {
+            if (selected) selected.classList.remove('highlight');
+            selected = newNode;
+            selected.classList.add('highlight');
+        }
+    </script>
+</body>
+</html>
